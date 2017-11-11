@@ -2,17 +2,20 @@
   "name": "ziro-cnpj",
   "version": "1.0.0",
   "description": "Application that verifies a given CNPJ number against the Receita Federal database",
+  "repository": "https://github.com/vitorbarbosa19/ziro-cnpj",
   "main": "index.js",
   "scripts": {
     "start": "micro"
   },
   "keywords": [
-    "receita federal", "cnpj"
+    "micro",
+    "node"
   ],
   "author": "Vitor Barbosa",
   "license": "ISC",
   "dependencies": {
-    "micro": "^9.0.0",
-    "request": "^2.83.0"
+    "axios": "^0.17.0",
+    "dotenv": "^4.0.0",
+    "micro": "^9.0.0"
   }
 }

@@ -1,27 +1,28 @@
+require('dotenv').config()
 const url = require('url')
-const request = require('request')
+const axios = require('axios')
 
 module.exports = (req, res) => {
+	//set header to allow cross origin
+	res.setHeader('Access-Control-Allow-Origin', '*')
+	//stop annoying browser favicon request
 	if(req.url === '/favicon.ico')
 		res.end()
-	else {
-		res.setHeader('Access-Control-Allow-Origin', '*')
-		const cnpj = url.parse(req.url, true).query.cnpj
-		request(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`,
-			(error, response, body) => {
-				if(error) {
-					setTimeout(request(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`,
-						(error, response, body) => {
-							if(error)
-								res.end(error) //after two attemps it sends the error
-							else
-								res.end(body)		
-						}
-					), 10000) //try again in 10 seconds
-				}
-				else
-					res.end(body) //body can contain error message regarding incorrect API usage, like 'invalid CNPJ'
-			}
-		)
-	}
+	//receive parsed query param CNPJ
+	const cnpj = url.parse(req.url, true).query.cnpj
+	axios({
+		url: `https://www.receitaws.com.br/v1/cnpj/${cnpj}/days/60`,
+		method: 'get',
+		headers: {
+			'Authorization': `Bearer ${process.env.TOKEN}`
+		}
+	})
+	.then( (response) => {
+		res.end(JSON.stringify(response.data))
+	})
+	.catch( (error) => {
+		//remove the request property which contains circular structure so that JSON.stringify can work
+		delete error.response.request
+		res.end(JSON.stringify(error.response))
+	})
 }
