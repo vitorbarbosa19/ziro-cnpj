@@ -10,19 +10,15 @@ module.exports = (req, res) => {
 		res.end()
 	//receive parsed query param CNPJ
 	const cnpj = url.parse(req.url, true).query.cnpj
-	axios({
-		url: `https://www.receitaws.com.br/v1/cnpj/${cnpj}/days/60`,
-		method: 'get',
-		headers: {
-			'Authorization': `Bearer ${process.env.TOKEN}`
-		}
-	})
+	axios.get(`https://ws.hubdodesenvolvedor.com.br/v2/cnpj/?cnpj=${cnpj}&token=${process.env.TOKEN}`)
 	.then( (response) => {
-		res.end(JSON.stringify(response.data))
+		const result = response.data.result
+		const str = result.numero_de_inscricao
+		result.cnpj = `${str.substr(0,2)}.${str.substr(2,3)}.${str.substr(5,3)}/${str.substr(8,4)}-${str.substr(12,2)}`
+		result.atividade_principal = [result.atividade_principal]
+		res.end(JSON.stringify(response.data.result))
 	})
 	.catch( (error) => {
-		//remove the request property which contains circular structure so that JSON.stringify can work
-		delete error.response.request
 		res.end(JSON.stringify(error.response))
 	})
 }
